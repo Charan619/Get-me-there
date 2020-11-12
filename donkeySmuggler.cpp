@@ -5,7 +5,7 @@ using namespace std;
 #define max 5
 
 
-void dijkstra(int G[max][max],int dis[max], int paths[max][max], int n,int startnode) {
+void dijkstra(int G[max][max],int dis[max], int paths[max][max], int n,int endnode) {
    int cost[max][max],distance[max],pred[max];
    int visited[max],count,mindistance,nextnode,i,j;
    for(i=0;i<n;i++)
@@ -15,12 +15,12 @@ void dijkstra(int G[max][max],int dis[max], int paths[max][max], int n,int start
    else
       cost[i][j]=G[i][j];
    for(i=0;i<n;i++) {
-      distance[i]=cost[startnode][i];
-      pred[i]=startnode;
+      distance[i]=cost[endnode][i];
+      pred[i]=endnode;
       visited[i]=0;
    }
-   distance[startnode]=0;
-   visited[startnode]=1;
+   distance[endnode]=0;
+   visited[endnode]=1;
    count=1;
    while(count<n-1) {
       mindistance=INFINITY;
@@ -40,11 +40,13 @@ void dijkstra(int G[max][max],int dis[max], int paths[max][max], int n,int start
    }
    int k=0;
    for(i=0;i<n;i++)
-   if(i!=startnode) {
+   {
+   paths[i][0]=i;
+   if(i!=endnode) {
       cout<<"\nDistance of node"<<i<<"="<<distance[i];
       dis[i]=distance[i];
       cout<<"\nPath="<<i;
-      paths[i][0]=i;
+
       j=i;
       k=1;
       do {
@@ -53,7 +55,57 @@ void dijkstra(int G[max][max],int dis[max], int paths[max][max], int n,int start
          cout<<"<-"<<j;
          paths[i][k]=j;
         k++;
-      }while(j!=startnode);
+      }while(j!=endnode);
+   }
+   }
+}
+
+
+void trafficChange(int G[max][max])
+{
+   int s,f;
+   cout<<"Enter the road to be changed";
+   cin>>s;
+   cin>>f;
+   cout<<"Enter the new traffic value";
+}
+
+
+void donkeySmuggler(int G[max][max],int dis[max], int paths[max][max], int n,int src,int endnode,int pos[3])
+{
+   for(int i=0;i<n;i++)
+   {
+      pos[0]=src;
+      pos[1]=dis[src]-dis[paths[src][1]];
+      pos[2]=paths[src][1];
+
+      while(pos[2]!=endnode || pos[1]!=0)
+      {
+         if(pos[1]!=0)
+         {
+            cout<<endl<<pos[1]<<"kms to go to reach town "<<pos[2];
+            pos[1]--;
+         }
+         else
+         {
+            cout<<endl<<"reached town "<<pos[2];
+            pos[0]=pos[2];
+            pos[1]=dis[pos[0]] - dis[paths[pos[0]][1]];
+            pos[2]=paths[pos[0]][1];
+         }
+         char c;
+         cout<<" Change traffic?";
+         cin>>c;
+         if(c=='y')
+         {
+            trafficChange(G);
+         }
+
+      }
+      cout<<endl<<"reached town "<<pos[2];
+      cout<<endl<<pos[0]<<pos[1]<<pos[2];
+
+      return;
    }
 }
 
@@ -62,10 +114,16 @@ int main() {
    int dis[max]={0};
    int paths[max][max]={0};
    int n=max;
-   int u=4;
+   int u,src;
+   cout<<"Enter source node";
+   cin>>src;
+   cout<<"Enter destination node";
+   cin>>u;
    dijkstra(G,dis,paths,n,u);
+   cout<<endl;
    for(int i=0;i<n;i++)
-    cout<<dis[i];
+   cout<<dis[i];
+
    for(int i=0;i<n;i++)
    {
        cout<<endl;
@@ -75,5 +133,12 @@ int main() {
        }
 
    }
+   for(int i =0;i<n;i++)
+   {
+      cout<<paths[src][i];
+   }
+   int pos[3]={src,0,paths[src][1]};
+   donkeySmuggler(G,dis,paths,n,src,u,pos);
+
    return 0;
 }
