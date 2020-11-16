@@ -2,6 +2,40 @@
 #include <bits/stdc++.h>
 using namespace std;  
   
+void updatePathCost(vector<list<int>>& paths, map<pair<int, int>, float>& costs, vector<int>& pathCost)
+{
+    pathCost.clear();
+    list<int>::iterator i;
+    int n = paths.size(), j, k, m, sum;
+    vector<int> path;
+    for(j=0;j<n;j++)
+    {
+        path.clear();
+        sum = 0;
+        for(i = paths[j].begin(); i != paths[j].end(); ++i)
+            path.push_back(*i);
+        m = path.size();
+        for(k = 0; k < m; k++) 
+        {
+            sum += costs[pair<int,int>(path[k], path[k+1])];
+        }
+        pathCost.push_back(sum);
+    }
+}
+
+int findMinPath(vector<int>& pathCost)
+{
+    int i, idx = 0;
+    int n = pathCost.size();
+    for(i = 1; i < n; i++)
+        if(pathCost[i] < pathCost[idx])
+        {
+            idx = i;
+            break;
+        }
+    return i;
+}
+
 class Graph 
 { 
     public:
@@ -37,8 +71,9 @@ void Graph::showPaths()
     cout<<paths.size()<<endl;
     for(int j=0;j<paths.size();++j) {
         for(i=paths[j].begin(); i != paths[j].end(); ++i)
-            cout<<*i<<"\t\t";
-        cout<<pathCost[j]<<endl;
+            cout<<*i<<"\t";
+        cout<<"\ncost : ";
+        cout<<pathCost[j]<<endl<<endl;
     }
 }
 
@@ -71,7 +106,7 @@ void Graph::loadPathUtil(int v1, int v2, bool visited[], list<int>& path)
         for(i = path.begin();i != path.end() ; ++i) 
             cout<<*i<<"->";
        
-        cout<<endl;
+        cout<<"\b\b"<<endl;
     }
     else
     { 
@@ -80,6 +115,7 @@ void Graph::loadPathUtil(int v1, int v2, bool visited[], list<int>& path)
             if (!visited[*i]) 
                 loadPathUtil(*i, v2, visited, path); 
     }
+
     path.pop_back();
     visited[v1]=false;
 } 
@@ -95,67 +131,52 @@ void Graph::loadPath(int v1, int v2)
     pathExist=false;
     
     loadPathUtil(v1,v2,visited,path);
-    updatePathCost(this.paths, this.costs, this.pathCost);
+    updatePathCost(this->paths, this->costs, this->pathCost);
 } 
 
 void Graph::updateCost(int v, int w, float cost)
 {
     costs[pair<int,int>(v, w)] = cost;
-    updatePathCost(this.paths, this.costs, this.pathCost);
+    updatePathCost(this->paths, this->costs, this->pathCost);
 }
 
-void updatePathCost(vector<list<int>>& paths, map<pair<int, int>, float>& costs, vector<int>& pathCost)
+void copylist(list<int>& b, list<int>& a)
 {
-    pathCost.clear();
-    list<int>::iterator i;
-    int n = paths.size(), j, k, m, sum;
-    vector<int> path;
-    for(j=0;j<n;j++)
-    {
-        sum = 0;
-        for(i = paths[j].begin(); i != paths[j].end(); ++i)
-            path.push_back(*i);
-        m = path.size();
-        path.clear();
-        for(k = 0; k < m; k++) 
-        {
-            sum += costs[pair<int,int>(path[k], path[k+1])];
-        }
-        pathCost.push_back(sum);
-    }
-}
-
-
-  
-void findMinPath(vector<int>& pathCost)
-{
-    int i, idx = 0;
-    int n = pathCost.size();
-    for(i = 1; i < n; i++)
-        if(pathCost[i] < pathCost[idx])
-            idx = i;
-    return i;
+    b.clear();
+    for(auto x : a)
+        b.push_back(x);
 }
 
 void traverse(Graph g) 
 {
-    int idx = findMinPath(g.pathCost);
-    list<int> trav = paths[idx];
-    
+    // g.showCost();
+    // g.showPaths();
+    int idx = findMinPath(g.pathCost), index = 0;
+    list<int> trav;
+    copylist(trav, g.paths[idx]);
 
     int node1, node2, dist, i, j, v1, v2, cst, n = g.paths.size();
     char ch;
-
-    while(node1 == v2)
+    
+    while(true)
     {
-        node1 = trav.pop_front();
-        node2 = trav.front();
+        if(trav.begin() != trav.end())
+            node1 = trav.front();
+        else
+            break;
+        trav.pop_front();
+        if(trav.begin() != trav.end())
+            node2 = trav.front();
+        else
+            break;
+    
         dist = g.costs[pair<int, int>(node1, node2)];
+
         for(i = 1; i < dist; i++)
         {
             cout<<"Travelled "<<i<<"out of "<<dist<<" units\nUpdate Traffic(y/n) : ";
             cin>>ch;
-            if(ch == "y") 
+            if(ch == 'y') 
             {
                 cout<<"Enter vertex 1 : ";
                 cin>>v1;
@@ -164,7 +185,7 @@ void traverse(Graph g)
                 cout<<"Enter cost to be updated : ";
                 cin>>cst;
                 g.updateCost(v1, v2, cst);
-                if(idx != findMinPath())
+                if(idx != findMinPath(g.pathCost))
                 {
                     vector<list<int>> paths1;
                     vector<list<int>> paths2;
@@ -172,22 +193,23 @@ void traverse(Graph g)
                     vector<int> pathCosts2;
 
                     vector<int> list1, list2;
+                    int idx1, idx2;
                     for(j = 0; j < n; j++)
                     {
-                        list<int>::iterator itr1 = find(paths[j].begin(), paths[j].end(), node1),
-                                            itr2 = find(paths[j].begin(), paths[j].end(), node2);
-                        int idx1, idx2;
-                        if(itr1 != paths[j].end())
+                        list<int>::iterator itr1 = find(g.paths[j].begin(), g.paths[j].end(), node1),
+                                            itr2 = find(g.paths[j].begin(), g.paths[j].end(), node2);
+                        
+                        if(itr1 != g.paths[j].end())
                         {
                             list<int> l1 = {};
-                            l1.splice(l1.begin(), paths[j], itr1, paths[j].end());
+                            l1.splice(l1.begin(), g.paths[j], itr1, g.paths[j].end());
                             paths1.push_back(l1);
                             list1.push_back(j);
                         }
-                        if(itr2 != paths[j].end())
+                        if(itr2 != g.paths[j].end())
                         {
                             list<int> l2 = {};
-                            l1.splice(l1.begin(), paths[j], itr1, paths[j].end());
+                            l2.splice(l2.begin(), g.paths[j], itr1, g.paths[j].end());
                             paths2.push_back(l2);
                             list1.push_back(j);
                         }
@@ -198,16 +220,17 @@ void traverse(Graph g)
                     idx2 = findMinPath(pathCosts2);
                     if(pathCosts1[idx1] < pathCosts2[idx2])
                     {
-                        trav = pathCosts1;
-                        node2 = pathCosts1.front();
+                        copylist(trav, paths1[idx1]);
+                        node2 = g.paths[idx1].front();
                         continue;
                     }
                     else    
                     {
-                        trav = pathCosts2;
+                        copylist(trav, paths2[idx2]);
                         node1 = node2;
                         node2 = pathCosts2.front();
-                        dist = costs[pair<int, int>(node1, node2)] - dist;
+                        dist = g.costs[pair<int, int>(node1, node2)] - dist;
+                        
                         //iterating again from reverse
                         i = 0;
                     }
@@ -223,19 +246,19 @@ int main()
     // Create a graph given in the above diagram
     Graph g(8);
     g.addEdge(0,1,1);
-    g.addEdge(1, 3, 1); 
-	g.addEdge(2, 1, 1); 
-	g.addEdge(3, 2, 1); 
-	g.addEdge(3, 4, 1); 
-	g.addEdge(4, 5, 1); 
-	g.addEdge(6, 4, 1);
-	g.addEdge(5,7, 1);
-	g.addEdge(7,6, 1);
-	g.addEdge(0,2, 1);
-	g.addEdge(2,6, 1);
+    g.addEdge(1, 3, 5); 
+	g.addEdge(2, 1, 5); 
+	g.addEdge(3, 2, 5); 
+	g.addEdge(3, 4, 5); 
+	g.addEdge(4, 5, 5); 
+	g.addEdge(6, 4, 5);
+	g.addEdge(5,7, 5);
+	g.addEdge(7,6, 5);
+	g.addEdge(0,2, 5);
+	g.addEdge(2,6, 5);
 	int v1=0, v2=6;
 	g.loadPath(v1,v2);
-    g.updatePathCost();
+    traverse(g);
 	if(!g.pathExist){
 	    cout<<"There is no path exist between "<<v1<<" and "<<v2;
 	}
