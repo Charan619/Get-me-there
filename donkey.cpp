@@ -1,7 +1,26 @@
-# // C++ program to print the paths between two vertices
+// C++ program to print the paths between two vertices
 #include <bits/stdc++.h>
 using namespace std;  
   
+void print(int i=0)
+{
+    cout<<"1@#"<<i<<"\n";
+}
+
+void split(list<int>& a, list<int> b, int val)
+{
+    a.clear();
+    bool found = false;
+    for( auto i : b)
+    {
+        if(i == val)
+            found = true;
+        if(found)
+            a.push_back(i);
+    }
+        
+}
+
 void updatePathCost(vector<list<int>>& paths, map<pair<int, int>, float>& costs, vector<int>& pathCost)
 {
     pathCost.clear();
@@ -55,7 +74,7 @@ class Graph
         void loadPathUtil(int v1, int v2, bool visited[], list<int>& path);  
         void loadPath(int v1, int v2);  
 
-        void showPaths(); 
+        void showPaths(vector<list<int>>& paths, vector<int>& pathCost); 
         void showCost();
 }; 
   
@@ -65,10 +84,10 @@ Graph::Graph(int V)
     adj = new list<int>[V]; 
 } 
   
-void Graph::showPaths()
-{
+void Graph::showPaths(vector<list<int>>& paths, vector<int>& pathCost)
+{ 
+    cout<<"-----------------\n";
     list<int>::iterator i;
-    cout<<paths.size()<<endl;
     for(int j=0;j<paths.size();++j) {
         for(i=paths[j].begin(); i != paths[j].end(); ++i)
             cout<<*i<<"\t";
@@ -191,33 +210,31 @@ void traverse(Graph g)
                     vector<list<int>> paths2;
                     vector<int> pathCosts1;
                     vector<int> pathCosts2;
-
-                    vector<int> list1, list2;
+                 
                     int idx1, idx2;
                     for(j = 0; j < n; j++)
                     {
-                        list<int>::iterator itr1 = find(g.paths[j].begin(), g.paths[j].end(), node1),
-                                            itr2 = find(g.paths[j].begin(), g.paths[j].end(), node2);
-                        
-                        if(itr1 != g.paths[j].end())
+                        if(find(g.paths[j].begin(), g.paths[j].end(), node1) != g.paths[j].end())
                         {
-                            list<int> l1 = {};
-                            l1.splice(l1.begin(), g.paths[j], itr1, g.paths[j].end());
+                            list<int> l1;
+                            split(l1, g.paths[j], node1);
                             paths1.push_back(l1);
-                            list1.push_back(j);
                         }
-                        if(itr2 != g.paths[j].end())
+                        
+                        if(find(g.paths[j].begin(), g.paths[j].end(), node2) != g.paths[j].end())
                         {
                             list<int> l2 = {};
-                            l2.splice(l2.begin(), g.paths[j], itr1, g.paths[j].end());
+                            split(l2, g.paths[j], node2);
                             paths2.push_back(l2);
-                            list1.push_back(j);
                         }
+                        
                     }
                     updatePathCost(paths1, g.costs, pathCosts1);
                     updatePathCost(paths2, g.costs, pathCosts2);
                     idx1 = findMinPath(pathCosts1);
                     idx2 = findMinPath(pathCosts2);
+                    g.showPaths(paths1, pathCosts1);
+                    g.showPaths(paths2, pathCosts2);
                     if(pathCosts1[idx1] < pathCosts2[idx2])
                     {
                         copylist(trav, paths1[idx1]);
@@ -234,6 +251,7 @@ void traverse(Graph g)
                         //iterating again from reverse
                         i = 0;
                     }
+                    print();
                 }
             }
         }
@@ -245,7 +263,7 @@ int main()
 {
     // Create a graph given in the above diagram
     Graph g(8);
-    g.addEdge(0,1,1);
+    g.addEdge(0,1,5);
     g.addEdge(1, 3, 5); 
 	g.addEdge(2, 1, 5); 
 	g.addEdge(3, 2, 5); 
