@@ -50,7 +50,7 @@ int findMinPath(vector<int>& pathCost)
 
     for(i = 1; i < n; i++)
     {
-       cout<<pathCost[i]<<" ";
+       //cout<<pathCost[i]<<" ";
 
 
         if(pathCost[i] < pathCost[idx])
@@ -202,7 +202,7 @@ void traverse(Graph g,int source,int dest)
 
         for(i = 1; i < dist; i++)
         {
-            cout<<"Package travelled "<<i<<"/"<<dist<<"kms from town "<<node1<< " to town "<< node2<<" \nUpdate Traffic(y/n) : ";
+            cout<<"\nPackage travelled "<<i<<"/"<<dist<<"kms from town "<<node1<< " to town "<< node2<<" \nUpdate Traffic(y/n) : ";
             cin>>ch;
             if(ch == 'y')
             {
@@ -303,6 +303,7 @@ void traverse(Graph g,int source,int dest)
 
 int main()
 {
+   cout<<"DONKEY AND SMUGGLER ALGORITHM\n";
     // Create a graph given in the above diagram
     Graph g(8);
     g.addEdge(0,1,5);
@@ -317,10 +318,16 @@ int main()
 	g.addEdge(0,2, 5);
 	g.addEdge(2,6, 5);
 	int v1=0, v2=6;
+	cout<<"Enter starting and ending node";
+	cin>>v1>>v2;
 	g.loadPath(v1,v2);
-    traverse(g,v1,v2);
+
 	if(!g.pathExist){
 	    cout<<"There is no path exist between "<<v1<<" and "<<v2;
+	    exit;
 	}
+
+   traverse(g,v1,v2);
+
     return 0;
 }
