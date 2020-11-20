@@ -213,7 +213,7 @@ void traverse(Graph g,int source,int dest)
                 cout<<"Enter cost to be updated : ";
                 cin>>cst;
                 g.updateCost(v1, v2, cst);
-
+                   dist = g.costs[pair<int, int>(node1, node2)];
                 if(idx != findMinPath(g.pathCost))
                 {
                    idx = findMinPath(g.pathCost);
@@ -267,10 +267,14 @@ void traverse(Graph g,int source,int dest)
                     {
                        cout<<"\nFace and Support 1 \n";
                         copylist(trav, paths1[idx1]);
+                        int temp=g.paths[idx1].front();
+                        g.paths[idx1].pop_front();
                         node2 = g.paths[idx1].front();
+                        i=0;
+                        break;
                         continue;
                     }
-                    else if((pathCosts1[idx1] + i ) > (pathCosts2[idx2] + (dist-i) ) && (pathCosts2[idx2] + i ) <= pathCosts3[idx3])
+                    else if((pathCosts1[idx1] + i ) > (pathCosts2[idx2] + (dist-i) ) && (pathCosts2[idx2] + (dist-i) ) <= pathCosts3[idx3])
                     {
                        cout<<"\nFace and Support 2 \n";
                         copylist(trav, paths2[idx2]);
@@ -306,17 +310,44 @@ int main()
    cout<<"DONKEY AND SMUGGLER ALGORITHM\n";
     // Create a graph given in the above diagram
     Graph g(8);
-    g.addEdge(0,1,5);
-    g.addEdge(1, 3, 5);
-	g.addEdge(2, 1, 5);
-	g.addEdge(3, 2, 5);
-	g.addEdge(3, 4, 5);
-	g.addEdge(4, 5, 5);
-	g.addEdge(6, 4, 5);
-	g.addEdge(5,7, 5);
-	g.addEdge(7,6, 5);
-	g.addEdge(0,2, 5);
-	g.addEdge(2,6, 5);
+    int opt=0;
+    char conti;
+    cout<<"1)Existing Graph or 2)Custom graph?";
+    cin>>opt;
+    if(opt==1)
+    {
+
+
+      g.addEdge(0,1,5);
+      g.addEdge(1, 3, 5);
+      g.addEdge(2, 1, 5);
+      g.addEdge(3, 2, 5);
+      g.addEdge(3, 4, 5);
+      g.addEdge(4, 5, 5);
+      g.addEdge(6, 4, 5);
+      g.addEdge(5,7, 5);
+      g.addEdge(7,6, 5);
+      g.addEdge(0,2, 5);
+      g.addEdge(2,6, 5);
+    }
+    else if(opt==2)
+    {
+       int n1,n2,w1;
+       while(1)
+       {
+          cout<<"Enter the nodes to add the edge between";
+          cin>>n1>>n2;
+          cout<<"Enter the weight";
+          cin>>w1;
+          g.addEdge(n1,n2,w1);
+          cout<<"Continue adding(y/n)?";
+          cin>>conti;
+          if(conti=='n')
+          {
+             break;
+          }
+       }
+    }
 	int v1=0, v2=6;
 	cout<<"Enter starting and ending node";
 	cin>>v1>>v2;
