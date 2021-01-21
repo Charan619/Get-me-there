@@ -1,2 +1,2 @@
-# Donkey-and-smuggler-algorithm
-implementation of the Donkey and Smuggler Optimization algorithm for dynamic traffic routing. Finds the shortest path in a graph network and changes the optimum path adaptively.
+# Get-me-there
+Implementation of the __Donkey and Smuggler Optimization algorithm__ for dynamic traffic routing. Finds the shortest path in a graph network and changes the optimum path adaptively.
